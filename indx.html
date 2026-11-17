@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>اختبار الكيمياء 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef3f1; --surface:#ffffff; --ink:#14302b; --muted:#5b726d; --line:#cddbd6;
+  --accent:#0f766e; --accent-ink:#ffffff; --sel:#d9f0ec; --warn:#b42318; --warn-bg:#fdeceb; --ok:#166534;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1a18; --surface:#162825; --ink:#e6f2ef; --muted:#9bb5af; --line:#2a423d;
+    --accent:#34d3c0; --accent-ink:#06211d; --sel:#1d3d38; --warn:#ff8a80; --warn-bg:#3a1b19; --ok:#6ee7a0;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1a18; --surface:#162825; --ink:#e6f2ef; --muted:#9bb5af; --line:#2a423d;
+  --accent:#34d3c0; --accent-ink:#06211d; --sel:#1d3d38; --warn:#ff8a80; --warn-bg:#3a1b19; --ok:#6ee7a0;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:90px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Tajawal",Tahoma,"Segoe UI",sans-serif;font-size:17px;line-height:1.7;-webkit-user-select:none;user-select:none}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px}
+h1{margin:0 0 6px;font-size:28px;font-weight:800}
+.sub{color:var(--muted);margin:0 0 20px}
+label{display:block;font-weight:700;margin:16px 0 6px}
+input[type=text]{width:100%;font:inherit;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);-webkit-user-select:text;user-select:text}
+input[type=text]:focus,button:focus-visible,.opt:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+.rules{margin:20px 0 0;padding:14px 18px;background:var(--warn-bg);color:var(--warn);border-radius:10px;font-size:15px}
+.rules ul{margin:6px 0 0;padding-inline-start:20px}
+.btn{font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:13px 26px;cursor:pointer;margin-top:22px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.bar{position:sticky;top:0;z-index:10;padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+.bar-in{max-width:720px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.who{font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:24px;direction:ltr;color:var(--accent)}
+.timer.low{color:var(--warn)}
+.prog{height:4px;background:var(--line)}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.q{margin-top:16px}
+.q h3{margin:0 0 12px;font-size:18px;font-weight:700}
+.q small{color:var(--muted);font-weight:400}
+.opt{display:flex;gap:12px;align-items:center;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;margin-top:8px;cursor:pointer}
+.opt.sel{background:var(--sel);border-color:var(--accent)}
+.opt input{accent-color:var(--accent);width:18px;height:18px;margin:0}
+.result{text-align:center}
+.score{font-size:56px;font-weight:800;direction:ltr;margin:10px 0}
+.result.bad .score{color:var(--warn)}
+.result.good .score{color:var(--ok)}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- الصفحة الأولى: الاسم والفصل -->
+<section id="start" class="card">
+  <h1>اختبار الكيمياء 1</h1>
+  <p class="sub">10 أسئلة اختيار من متعدد، الدرجة الكلية 5، نصف درجة لكل سؤال</p>
+  <label for="name">اسم الطالب</label>
+  <input type="text" id="name" autocomplete="off" placeholder="الاسم الثلاثي">
+  <label for="cls">الفصل</label>
+  <input type="text" id="cls" autocomplete="off" placeholder="مثال: أول ثانوي / 3">
+  <div class="rules"><strong>تعليمات مهمة</strong>
+    <ul>
+      <li>مدة الاختبار 17 دقيقة تبدأ فور الضغط على «ابدأ الاختبار».</li>
+      <li>تحديث الصفحة أثناء الاختبار يُحتسب مخالفة.</li>
+    </ul>
+  </div>
+  <button class="btn" id="startBtn" disabled>ابدأ الاختبار</button>
+</section>
+
+<!-- الاختبار -->
+<section id="exam" class="hidden">
+  <div class="bar">
+    <div class="bar-in"><span class="who" id="who"></span><span class="timer" id="timer">17:00</span></div>
+    <div class="prog"><i id="prog"></i></div>
+  </div>
+  <div id="qs"></div>
+  <div style="text-align:center"><button class="btn" id="submitBtn">إنهاء الاختبار وتسليم الإجابات</button></div>
+</section>
+
+<!-- النتيجة -->
+<section id="result" class="card result hidden">
+  <h1 id="rTitle"></h1>
+  <p class="sub" id="rWho"></p>
+  <div class="score" id="rScore"></div>
+  <p id="rMsg" class="sub"></p>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var DURATION = 17 * 60;       // مدة الاختبار بالثواني
+  var POINT = 0.5;              // درجة كل سؤال
+  var KEY = 'chemExamState_v1';
+
+  // الأسئلة: الخيار الأول في كل مصفوفة هو الإجابة الصحيحة (يتم خلط الخيارات تلقائياً)
+  var BANK = [
+    {q:'يوجد الأوزون في الغلاف الجوي في طبقة:', o:['الستراتوسفير','التروبوسفير','الميزوسفير','الثيرموسفير']},
+    {q:'التركيب الكيميائي للأوزون هو:', o:['O₃','O₂','CO','CO₂']},
+    {q:'أول من قاس كمية الأوزون في الغلاف الجوي:', o:['دوبسون','ميجلي','فلمنج','هيل']},
+    {q:'مادة تمتص معظم الأشعة الضارة (UV) قبل وصولها إلى الأرض:', o:['الأوزون','الأكسجين','الكلوروفورم','النيتروجين']},
+    {q:'من أخطار مركبات الكلوروفلوروكربون أنها:', o:['تقلل من سمك طبقة الأوزون','تزيد من سمك طبقة الأوزون','تزيد من سمك الأكسجين','لا تؤثر في الغلاف الجوي']},
+    {q:'المقياس الذي يعبّر عن كمية المادة فقط هو:', o:['الكتلة','الوزن','الكثافة','درجة الانصهار']},
+    {q:'أي مما يلي يُعد تغيراً كيميائياً؟', o:['احتراق الخشب','تجمد الماء','انكسار الزجاج','تقطيع الورقة']},
+    {q:'أي مما يلي خاصية فيزيائية غير مميزة؟', o:['الكتلة','الكثافة','درجة الانصهار','رائحة القهوة']},
+    {q:'أي المواد التالية يُعد عنصراً؟', o:['الذهب Au','الماء H₂O','ملح الطعام NaCl','سكر الطعام']},
+    {q:'حلّل طالب 10 g من الهيدروجين مع 79.4 g من الأكسجين لتكوين الماء. ما كتلة الماء الناتجة وفق قانون حفظ الكتلة؟', o:['89.4 g','69.4 g','79.4 g','794 g']}
+  ];
+
+  var $ = function(id){return document.getElementById(id)};
+  var state = 'idle';           // idle | running | done
+  var endAt = 0, tick = null, studentName = '', studentCls = '';
+  var qs = [];
+
+  function save(o){ try{ localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){} }
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){ return null; } }
+
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;} return a; }
+
+  function show(id){ ['start','exam','result'].forEach(function(s){ $(s).classList.toggle('hidden', s!==id); }); window.scrollTo(0,0); }
+
+  function showResult(score, violation, who){
+    state = 'done';
+    clearInterval(tick);
+    var r = $('result');
+    r.classList.remove('good','bad');
+    r.classList.add(violation ? 'bad' : 'good');
+    $('rTitle').textContent = violation ? 'تم إنهاء الاختبار' : 'تم تسليم الاختبار';
+    $('rWho').textContent = who || '';
+    $('rScore').textContent = score.toFixed(1) + ' / 5';
+    $('rMsg').textContent = violation
+      ? violation
+      : 'تم تسجيل إجابتك. يمكنك إغلاق الصفحة.';
+    show('result');
+  }
+
+  // ===== منع الغش =====
+  function violate(reason){
+    if(state!=='running') return;
+    state = 'done';
+    save({status:'done', score:0, name:studentName, cls:studentCls, violation:reason});
+    showResult(0, 'تم رصد مخالفة: ' + reason + '. تم إنهاء الاختبار وتصفير الدرجة.', studentName + ' — ' + studentCls);
+  }
+  document.addEventListener('visibilitychange', function(){ if(document.hidden) violate('تبديل التبويب أو تصغير النافذة'); });
+  window.addEventListener('blur', function(){ violate('خروج التركيز من نافذة الاختبار'); });
+  document.documentElement.addEventListener('mouseleave', function(){ violate('خروج مؤشر الماوس من نافذة المتصفح'); });
+  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  ['copy','cut','paste','dragstart'].forEach(function(ev){ document.addEventListener(ev, function(e){ if(state==='running') e.preventDefault(); }); });
+  document.addEventListener('keydown', function(e){
+    if(state!=='running') return;
+    var k = (e.key||'').toLowerCase();
+    if(k==='f12' || k==='printscreen' || ((e.ctrlKey||e.metaKey) && ['c','v','x','p','s','u','a'].indexOf(k)>-1) || (e.ctrlKey && e.shiftKey && ['i','j','c'].indexOf(k)>-1)){
+      e.preventDefault();
+    }
+  });
+  window.addEventListener('beforeunload', function(e){
+    if(state==='running'){ e.preventDefault(); e.returnValue=''; }
+  });
+
+  // ===== البدء =====
+  function validate(){ $('startBtn').disabled = !($('name').value.trim() && $('cls').value.trim()); }
+  $('name').addEventListener('input', validate);
+  $('cls').addEventListener('input', validate);
+
+  function buildQuestions(){
+    qs = shuffle(BANK).map(function(it){
+      var opts = shuffle(it.o.map(function(t,i){return {t:t, ok:i===0};}));
+      return {q:it.q, opts:opts, ans:-1};
+    });
+    var box = $('qs'); box.innerHTML='';
+    qs.forEach(function(item, qi){
+      var c = document.createElement('div'); c.className='card q';
+      var h = document.createElement('h3');
+      h.textContent = (qi+1) + '. ' + item.q + ' ';
+      var s = document.createElement('small'); s.textContent = '(نصف درجة)'; h.appendChild(s);
+      c.appendChild(h);
+      item.opts.forEach(function(op, oi){
+        var l = document.createElement('label'); l.className='opt'; l.style.margin='8px 0 0'; l.style.fontWeight='500';
+        var r = document.createElement('input'); r.type='radio'; r.name='q'+qi;
+        r.addEventListener('change', function(){
+          item.ans = oi;
+          Array.prototype.forEach.call(c.querySelectorAll('.opt'), function(x){x.classList.remove('sel')});
+          l.classList.add('sel');
+          var n = qs.filter(function(z){return z.ans>-1}).length;
+          $('prog').style.width = (n/qs.length*100)+'%';
+        });
+        l.appendChild(r); l.appendChild(document.createTextNode(op.t));
+        c.appendChild(l);
+      });
+      box.appendChild(c);
+    });
+  }
+
+  $('startBtn').addEventListener('click', function(){
+    studentName = $('name').value.trim();
+    studentCls = $('cls').value.trim();
+    buildQuestions();
+    endAt = Date.now() + DURATION*1000;
+    save({status:'running', name:studentName, cls:studentCls});
+    $('who').textContent = studentName + ' — ' + studentCls;
+    state = 'running';
+    show('exam');
+    tick = setInterval(update, 250);
+    update();
+  });
+
+  function fmt(s){ var m=Math.floor(s/60), r=s%60; return (m<10?'0':'')+m+':'+(r<10?'0':'')+r; }
+  function update(){
+    var left = Math.max(0, Math.ceil((endAt-Date.now())/1000));
+    var t = $('timer'); t.textContent = fmt(left);
+    t.classList.toggle('low', left<=180);
+    if(left<=0) finish(true);
+  }
+
+  function finish(timeUp){
+    if(state!=='running') return;
+    var correct = qs.filter(function(x){ return x.ans>-1 && x.opts[x.ans].ok; }).length;
+    var score = correct*POINT;
+    state = 'done';
+    save({status:'done', score:score, name:studentName, cls:studentCls});
+    var who = studentName + ' — ' + studentCls;
+    showResult(score, null, who);
+    if(timeUp) $('rMsg').textContent = 'انتهى الوقت وتم تسليم إجاباتك تلقائياً.';
+  }
+  $('submitBtn').addEventListener('click', function(){
+    var left = qs.filter(function(z){return z.ans<0}).length;
+    if(left && !confirm('لم تجب عن ' + left + ' سؤال. هل تريد التسليم؟')) return;
+    finish(false);
+  });
+
+  // ===== عند تحميل الصفحة =====
+  var prev = load();
+  if(prev && prev.status==='running'){
+    // تم تحديث الصفحة أثناء الاختبار
+    studentName = prev.name; studentCls = prev.cls;
+    save({status:'done', score:0, name:prev.name, cls:prev.cls, violation:'تحديث الصفحة'});
+    showResult(0, 'تم رصد مخالفة: تحديث الصفحة أثناء الاختبار. تم تصفير الدرجة.', prev.name + ' — ' + prev.cls);
+  } else if(prev && prev.status==='done'){
+    showResult(prev.score||0, prev.violation ? 'تم إنهاء الاختبار سابقاً بسبب: ' + prev.violation : null, prev.name + ' — ' + prev.cls);
+    if(!prev.violation) $('rMsg').textContent = 'سبق أن أنهيت هذا الاختبار على هذا الجهاز.';
+  }
+})();
+</script>
+</body>
+</html>
